@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/students">Manage Students</a></li>
+<li class="breadcrumb-item active">{{ student.name }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-7">
+            <h2 class="text-primary fw-bold mb-1">
+                <i class="bi bi-person-badge me-2"></i>{{ student.name }}
+            </h2>
+            <p class="text-muted">
+                <strong>Roll No:</strong> {{ student.roll_no }} |
+                <strong>Total Activities:</strong> {{ records|length }}
+            </p>
+        </div>
+        <div class="col-md-5 text-md-end">
+            <a href="/" class="btn btn-primary shadow-sm">
+                <i class="bi bi-plus-lg"></i> Add New Entry
+            </a>
+            <a href="/edit_student/{{ student.id }}" class="btn btn-outline-secondary">
+                <i class="bi bi-gear"></i> Edit Profile
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-white p-3 text-center" style="border-radius: 12px;">
+                <h6 class="text-uppercase text-muted small fw-bold">Latest Level</h6>
+                {% if records %}
+                <h3 class="text-success mb-0">Stage {{ records[0].stage }}</h3>
+                <small class="text-muted">{{ records[0].category }}</small>
+                {% else %}
+                <h3 class="text-muted mb-0">N/A</h3>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm bg-white p-3" style="border-radius: 12px;">
+                <h6 class="text-uppercase text-muted small fw-bold mb-2">Student Performance Note</h6>
+                <p class="mb-0 text-dark italic">
+                    {% if records %}
+                    "{{ records[0].notes or 'No notes recorded for the latest session.' }}"
+                    {% else %}
+                    No activity records found. Start logging to see progress insights.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0" style="border-radius: 15px;">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>Activity History</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Date</th>
+                            <th>Behavioral Category</th>
+                            <th>Stage (1-20)</th>
+                            <th>Teacher Remarks</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="text-muted small">{{ record.date_logged.strftime('%d %b, %Y') }}</span>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+                                    {{ record.category }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="fw-bold me-2">{{ record.stage }}</span>
+                                    <div class="progress flex-grow-1" style="height: 6px; width: 80px;">
+                                        <div class="progress-bar bg-info"
+                                            style="width: {{ (record.stage / 20) * 100 }}%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-muted" style="font-size: 0.95rem;">
+                                {{ record.notes or '--' }}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a href="/edit/{{ record.id }}" class="btn btn-sm btn-outline-warning"
+                                        title="Edit Entry">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a href="/delete_record/{{ record.id }}" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Are you sure you want to delete this specific progress entry?')"
+                                        title="Delete Entry">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        {% if not records %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <img src="https://cdn-icons-png.flaticon.com/512/4076/4076403.png" width="60"
+                                    class="opacity-25 mb-3">
+                                <p class="text-muted">No activity has been logged for {{ student.name }} yet.</p>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

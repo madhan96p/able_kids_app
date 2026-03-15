@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Master Dashboard</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="text-dark fw-bold"><i class="bi bi-speedometer2 me-2"></i>All Activity Records</h2>
+            <p class="text-muted">Viewing the latest progress logs for all students at Able Kids.</p>
+        </div>
+        
+        <div class="col-md-6 text-md-end">
+            <form action="/dashboard" method="GET" class="d-inline-block">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-filter"></i></span>
+                    <select name="category" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                        <option value="Gross Motor" {% if request.args.get('category') == 'Gross Motor' %}selected{% endif %}>Gross Motor</option>
+                        <option value="Fine Motor" {% if request.args.get('category') == 'Fine Motor' %}selected{% endif %}>Fine Motor</option>
+                        <option value="Eating/Drinking" {% if request.args.get('category') == 'Eating/Drinking' %}selected{% endif %}>Eating/Drinking</option>
+                        <option value="Dressing" {% if request.args.get('category') == 'Dressing' %}selected{% endif %}>Dressing</option>
+                        <option value="Social Interaction" {% if request.args.get('category') == 'Social Interaction' %}selected{% endif %}>Social Interaction</option>
+                        <option value="Reading" {% if request.args.get('category') == 'Reading' %}selected{% endif %}>Reading</option>
+                        </select>
+                    {% if request.args.get('category') %}
+                        <a href="/dashboard" class="btn btn-outline-secondary">Clear</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0" style="border-radius: 15px;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-primary text-white">
+                        <tr>
+                            <th class="ps-4">Date</th>
+                            <th>Student Name</th>
+                            <th>Category</th>
+                            <th>Stage Progress</th>
+                            <th>Remarks</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for act in activities %}
+                        <tr>
+                            <td class="ps-4 text-muted small">
+                                {{ act.date_logged.strftime('%d-%m-%Y') }}
+                            </td>
+                            <td>
+                                <a href="/student/{{ act.student.id }}" class="text-decoration-none fw-bold text-dark">
+                                    {{ act.student.name }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-primary border border-primary-subtle">
+                                    {{ act.category }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: {{ (act.stage / 20) * 100 }}%"></div>
+                                    </div>
+                                    <span class="fw-bold">Level {{ act.stage }}</span>
+                                </div>
+                            </td>
+                            <td class="text-truncate" style="max-width: 200px;" title="{{ act.notes }}">
+                                {{ act.notes or "---" }}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a href="/edit/{{ act.id }}" class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="/delete_record/{{ act.id }}" class="btn btn-sm btn-outline-danger" 
+                                       onclick="return confirm('Delete this specific entry?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        {% if not activities %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-info-circle fs-2 text-muted"></i>
+                                <p class="mt-2 text-muted">No records found matching your filter.</p>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

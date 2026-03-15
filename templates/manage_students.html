@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Manage Students</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 15px;">
+                <div class="card-header bg-success text-white py-3" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>Register Student</h5>
+                </div>
+                <div class="card-body p-4 bg-white" style="border-radius: 0 0 15px 15px;">
+                    <form action="/add_student" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Full Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                <input type="text" name="name" class="form-control" placeholder="e.g. Arjun Kumar" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Roll Number / ID</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-hash"></i></span>
+                                <input type="text" name="roll_no" class="form-control" placeholder="e.g. AK2024-01" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 shadow-sm mt-2">
+                            <i class="bi bi-check-circle me-1"></i> Register Student
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="alert alert-info border-0 shadow-sm" style="border-radius: 12px;">
+                <small><i class="bi bi-info-circle-fill me-1"></i> <strong>Tip:</strong> Deleting a student will also permanently remove all their 1-20 stage activity logs.</small>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-header bg-dark text-white py-3" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>Student Directory</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">ID/Roll</th>
+                                <th>Student Name</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in students %}
+                            <tr>
+                                <td class="ps-4"><span class="badge bg-secondary">{{ s.roll_no }}</span></td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ s.name }}</div>
+                                    <small class="text-muted">{{ s.records|length }} activities logged</small>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group shadow-sm">
+                                        <a href="/student/{{ s.id }}" class="btn btn-sm btn-outline-info" title="View Progress">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="/edit_student/{{ s.id }}" class="btn btn-sm btn-outline-primary" title="Edit Profile">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="/delete_student/{{ s.id }}" 
+                                           class="btn btn-sm btn-outline-danger" 
+                                           onclick="return confirm('WARNING: Are you sure? This will delete {{ s.name }} and ALL their progress records permanently.')"
+                                           title="Delete Student">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            
+                            {% if not students %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5">
+                                    <p class="text-muted mb-0">No students registered yet. Use the form on the left to start.</p>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

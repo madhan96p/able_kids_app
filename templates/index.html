@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Daily Entry</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0" style="border-radius: 15px;">
+                <div class="card-header bg-primary text-white text-center py-4" style="border-radius: 15px 15px 0 0;">
+                    <i class="bi bi-pencil-square fs-1 mb-2"></i>
+                    <h2 class="mb-0">Daily Progress Entry</h2>
+                    <p class="mb-0 opacity-75">Teacher Portal - Able Kids Special School</p>
+                </div>
+                <div class="card-body p-4 bg-white">
+                    <form action="/add_activity" method="POST">
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">
+                                <i class="bi bi-person-fill me-1"></i> Select Student
+                            </label>
+                            <select name="student_id" class="form-select form-select-lg border-primary-subtle" required>
+                                <option value="">-- Choose Student --</option>
+                                {% for s in students %}
+                                <option value="{{ s.id }}">{{ s.name }} ({{ s.roll_no }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">
+                                <i class="bi bi-grid-fill me-1"></i> Behavioral Category (Full 18 Domains)
+                            </label>
+                            <select name="category" class="form-select border-primary-subtle" required>
+                                <optgroup label="Physical & Motor Skills">
+                                    <option value="Gross Motor">Gross Motor Activities</option>
+                                    <option value="Fine Motor">Fine Motor Activities</option>
+                                    <option value="Locomotion">Locomotion (Walking/Running)</option>
+                                    <option value="Occupation">Occupation (General Play/Work)</option>
+                                </optgroup>
+
+                                <optgroup label="Self-Help (Personal Care)">
+                                    <option value="Eating/Drinking">Eating/Drinking</option>
+                                    <option value="Dressing">Dressing</option>
+                                    <option value="Grooming">Grooming</option>
+                                    <option value="Toileting">Toileting</option>
+                                    <option value="Self-Help General">Self-Help General</option>
+                                </optgroup>
+
+                                <optgroup label="Social, Communication & Independence">
+                                    <option value="Communication">Communication (Speech/Expression)</option>
+                                    <option value="Social Interaction">Social Interaction</option>
+                                    <option value="Self-Direction">Self-Direction (Choices/Initiative)</option>
+                                    <option value="Socialization">Socialization (Group Rules)</option>
+                                </optgroup>
+
+                                <optgroup label="Functional Academics">
+                                    <option value="Reading">Reading</option>
+                                    <option value="Writing">Writing</option>
+                                    <option value="Numbers">Numbers (Math)</option>
+                                    <option value="Money">Money Management</option>
+                                    <option value="Time">Time Concepts</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">
+                                <i class="bi bi-graph-up-arrow me-1"></i> Current Stage (1 - 20)
+                            </label>
+                            <input type="number" name="stage" class="form-control border-primary-subtle" min="1"
+                                max="20" placeholder="Enter level (1-20)" required>
+                            <div class="form-text text-info">
+                                <i class="bi bi-info-circle"></i> Refer to the behavioral profile chart for exact stage
+                                mapping.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">
+                                <i class="bi bi-chat-left-text me-1"></i> Teacher Remarks / Notes
+                            </label>
+                            <textarea name="notes" class="form-control border-primary-subtle" rows="3"
+                                placeholder="Describe the child's response and performance today..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                                <i class="bi bi-cloud-arrow-up-fill me-2"></i> Save & View Progress
+                            </button>
+                            <a href="/dashboard" class="btn btn-outline-secondary">
+                                <i class="bi bi-list-task me-1"></i> View All Activity Records
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
