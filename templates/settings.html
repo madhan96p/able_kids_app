@@ -19,7 +19,7 @@
                     </form>
                 </div>
             </div>
-            
+
             <div class="d-grid gap-2">
                 <a href="/students" class="btn btn-outline-primary btn-lg">
                     <i class="bi bi-people-fill me-2"></i> Manage Students
@@ -36,26 +36,53 @@
                     </button>
                 </div>
                 <div class="card-body">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Category Name</th>
-                                <th>Group</th>
-                                <th class="text-end">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for cat in categories %}
-                            <tr>
-                                <td>{{ cat.name }}</td>
-                                <td><span class="badge bg-light text-dark border">{{ cat.group }}</span></td>
-                                <td class="text-end">
-                                    <a href="#" class="text-danger"><i class="bi bi-trash"></i></a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Category Name</th>
+                                    <th>Group</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cat in categories %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td class="fw-bold">{{ cat.name }}</td>
+                                    <td>
+                                        {% if cat.group == 'Physical' %}
+                                        <span
+                                            class="badge bg-primary-subtle text-primary border border-primary-subtle">Physical/Motor</span>
+                                        {% elif cat.group == 'Self-Help' %}
+                                        <span
+                                            class="badge bg-success-subtle text-success border border-success-subtle">Self-Help</span>
+                                        {% else %}
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle">{{
+                                            cat.group }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="/settings/delete_category/{{ cat.id }}"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Delete Category: {{ cat.name }}?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                                {% if not categories %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        No categories found. Use the "Add New" button to start.
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

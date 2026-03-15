@@ -31,7 +31,7 @@
 
                         <div class="mb-4">
                             <label class="form-label fw-bold text-secondary">
-                                <i class="bi bi-grid-fill me-1"></i> Behavioral Category (Full 18 Domains)
+                                <i class="bi bi-grid-fill me-1"></i> Behavioral Category (Full {{ cat_count }} Domains)
                             </label>
                             <select name="category" class="form-select border-primary-subtle" required>
                                 <optgroup label="Physical & Motor Skills">
@@ -68,10 +68,10 @@
 
                         <div class="mb-4">
                             <label class="form-label fw-bold text-secondary">
-                                <i class="bi bi-graph-up-arrow me-1"></i> Current Stage (1 - 20)
+                                <i class="bi bi-bar-chart-steps me-1"></i> Progress Stage (1 to {{ total_stages }})
                             </label>
                             <input type="number" name="stage" class="form-control border-primary-subtle" min="1"
-                                max="20" placeholder="Enter level (1-20)" required>
+                                max="{{ total_stages }}" placeholder="Enter level (1-{{ total_stages }})" required>
                             <div class="form-text text-info">
                                 <i class="bi bi-info-circle"></i> Refer to the behavioral profile chart for exact stage
                                 mapping.

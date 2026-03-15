@@ -18,14 +18,25 @@
                             <label class="form-label fw-bold text-secondary">Full Name</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
-                                <input type="text" name="name" class="form-control" placeholder="e.g. Arjun Kumar" required>
+                                <input type="text" name="name" class="form-control" placeholder="e.g. Arjun Kumar"
+                                    required>
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Gender</label>
+                            <select name="gender" class="form-select" required>
+                                <option value="">-- Select Gender --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold text-secondary">Roll Number / ID</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-hash"></i></span>
-                                <input type="text" name="roll_no" class="form-control" placeholder="e.g. AK2024-01" required>
+                                <input type="text" name="roll_no" class="form-control" placeholder="e.g. AK2024-01"
+                                    required>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-success w-100 shadow-sm mt-2">
@@ -34,10 +45,11 @@
                     </form>
                 </div>
             </div>
-            
-            <div class="alert alert-info border-0 shadow-sm" style="border-radius: 12px;">
-                <small><i class="bi bi-info-circle-fill me-1"></i> <strong>Tip:</strong> Deleting a student will also permanently remove all their 1-20 stage activity logs.</small>
-            </div>
+
+            <p class="text-muted small">
+                <i class="bi bi-info-circle"></i> Tip: Deleting a student will permanently remove all their 1-{{
+                total_stages }} stage activity logs.
+            </p>
         </div>
 
         <div class="col-md-8">
@@ -49,42 +61,57 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th class="ps-4">ID/Roll</th>
+                                <th class="ps-4" style="width: 50px;">#</th>
                                 <th>Student Name</th>
+                                <th>Gender</th>
+                                <th>ID/Roll</th>
                                 <th class="text-end pe-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for s in students %}
                             <tr>
-                                <td class="ps-4"><span class="badge bg-secondary">{{ s.roll_no }}</span></td>
+                                <td class="ps-4 text-muted">{{ loop.index }}</td>
                                 <td>
-                                    <div class="fw-bold text-dark">{{ s.name }}</div>
-                                    <small class="text-muted">{{ s.records|length }} activities logged</small>
+                                    <span class="fw-bold text-primary">{{ s.name }}</span>
                                 </td>
+                                <td>
+                                    {% if s.gender == 'Male' %}
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                        <i class="bi bi-gender-male"></i> Male
+                                    </span>
+                                    {% elif s.gender == 'Female' %}
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                        <i class="bi bi-gender-female"></i> Female
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-secondary-subtle text-secondary border">
+                                        {{ s.gender or 'N/A' }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td><code class="text-dark">{{ s.roll_no }}</code></td>
                                 <td class="text-end pe-4">
                                     <div class="btn-group shadow-sm">
-                                        <a href="/student/{{ s.id }}" class="btn btn-sm btn-outline-info" title="View Progress">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a href="/edit_student/{{ s.id }}" class="btn btn-sm btn-outline-primary" title="Edit Profile">
+                                        <a href="/edit_student/{{ s.id }}" class="btn btn-sm btn-outline-primary"
+                                            title="Edit Profile">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a href="/delete_student/{{ s.id }}" 
-                                           class="btn btn-sm btn-outline-danger" 
-                                           onclick="return confirm('WARNING: Are you sure? This will delete {{ s.name }} and ALL their progress records permanently.')"
-                                           title="Delete Student">
+                                        <a href="/delete_student/{{ s.id }}" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('WARNING: This will delete {{ s.name }} and ALL records.')"
+                                            title="Delete Student">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>
                                 </td>
                             </tr>
                             {% endfor %}
-                            
+
                             {% if not students %}
                             <tr>
-                                <td colspan="3" class="text-center py-5">
-                                    <p class="text-muted mb-0">No students registered yet. Use the form on the left to start.</p>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="bi bi-people fs-2 d-block mb-2"></i>
+                                    No students registered yet.
                                 </td>
                             </tr>
                             {% endif %}

@@ -17,7 +17,7 @@ class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     roll_no = db.Column(db.String(20), unique=True)
-    # Cascade delete: Deleting a student removes all their activity records
+    gender = db.Column(db.String(10))  # New Column: Male, Female, Other
     records = db.relationship(
         'DailyActivity', backref='student', cascade="all, delete-orphan", lazy=True)
 
@@ -45,19 +45,47 @@ def inject_students():
     return dict(students_list=all_students)
 
 
+@app.context_processor
+def inject_global_data():
+    all_students = Student.query.order_by(Student.name).all()
+
+    # Fetch stages from DB
+    stages_config = AppConfig.query.filter_by(key='total_stages').first()
+    max_stages = stages_config.value if stages_config else 20
+
+    return dict(
+        students_list=all_students,
+        # Now {{ total_stages }} works in ANY html file
+        total_stages=max_stages
+    )
+
+
 @app.route('/')
 def index():
-    # Look for the 'search' ID sent by the dropdown
-    search_id = request.args.get('search')
+    # 1. Get all categories from DB
+    categories = BehavioralCategory.query.all()
 
-    if search_id:
-        # If an ID was sent, filter the list to show ONLY that student
-        students = Student.query.filter_by(id=search_id).all()
-    else:
-        # Otherwise, show all students as usual
-        students = Student.query.all()
+    # 2. Get the actual count (e.g., if Niru added a 19th one, it shows 19)
+    category_count = len(categories)
 
-    return render_template('index.html', students=students)
+    # 3. Get the Max Stages from settings
+    stages_config = AppConfig.query.filter_by(key='total_stages').first()
+    max_val = stages_config.value if stages_config else 20
+
+    # Send students, categories, count, and max_val to the HTML
+    students = Student.query.all()
+    return render_template('index.html',
+                           students=students,
+                           categories_list=categories,
+                           cat_count=category_count,
+                           total_stages=max_val)
+
+
+@app.context_processor
+def inject_global_vars():
+    # This makes {{ total_stages }} available in base.html, dashboard.html, etc.
+    config = AppConfig.query.filter_by(key='total_stages').first()
+    return dict(total_stages=config.value if config else 20)
 
 
 @app.route('/add_activity', methods=['POST'])
@@ -98,10 +126,13 @@ def dashboard():
     return render_template('dashboard.html', activities=activities)
 
 # New Models
+
+
 class BehavioralCategory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
-    group = db.Column(db.String(50)) # e.g., "Physical", "Social"
+    group = db.Column(db.String(50))  # e.g., "Physical", "Social"
+
 
 class AppConfig(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -109,20 +140,31 @@ class AppConfig(db.Model):
     value = db.Column(db.Integer)
 
 # --- Settings Route ---
+
+
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
     if request.method == 'POST':
-        # Update Total Stages
+        # Update Total Stages logic...
         new_stages = request.form.get('total_stages')
         config = AppConfig.query.filter_by(key='total_stages').first()
         if config:
             config.value = int(new_stages)
             db.session.commit()
-            flash("Settings Updated!", "success")
-            
-    categories = BehavioralCategory.query.all()
+            flash(f"Maximum stages updated to {new_stages}!", "success")
+
+    # UPDATE: Order by group then name so the Serial Numbers (1-18)
+    # follow a logical category order (Physical, then Self-Help, etc.)
+    categories = BehavioralCategory.query.order_by(
+        BehavioralCategory.group, BehavioralCategory.name).all()
+
     stages_config = AppConfig.query.filter_by(key='total_stages').first()
-    return render_template('settings.html', categories=categories, stages=stages_config.value if stages_config else 20)
+    current_stages = stages_config.value if stages_config else 20
+
+    return render_template('settings.html',
+                           categories=categories,
+                           stages=current_stages)
+
 
 @app.route('/settings/add_category', methods=['POST'])
 def add_category():
@@ -134,6 +176,7 @@ def add_category():
         db.session.commit()
         flash(f"Category '{name}' added!", "success")
     return redirect(url_for('settings'))
+
 
 @app.route('/delete_record/<int:id>')
 def delete_record(id):
@@ -154,14 +197,12 @@ def manage_students():
 @app.route('/add_student', methods=['POST'])
 def add_student():
     name = request.form.get('name')
-    roll = request.form.get('roll_no')
-    if Student.query.filter_by(roll_no=roll).first():
-        flash("Roll number already exists!", "danger")
-    else:
-        new_student = Student(name=name, roll_no=roll)
-        db.session.add(new_student)
-        db.session.commit()
-        flash(f"Student {name} registered!", "success")
+    roll_no = request.form.get('roll_no')
+    gender = request.form.get('gender')  # Get gender from form
+
+    new_student = Student(name=name, roll_no=roll_no, gender=gender)
+    db.session.add(new_student)
+    db.session.commit()
     return redirect(url_for('manage_students'))
 
 
@@ -181,10 +222,20 @@ def edit_student_page(id):
     return render_template('edit_student.html', student=student)
 
 
+@app.route('/settings/delete_category/<int:id>')
+def delete_category(id):
+    cat = BehavioralCategory.query.get_or_404(id)
+    db.session.delete(cat)
+    db.session.commit()
+    flash(f"Category '{cat.name}' removed.", "warning")
+    return redirect(url_for('settings'))
+
+
 @app.route('/update_student/<int:id>', methods=['POST'])
 def update_student(id):
     student = Student.query.get_or_404(id)
     student.name = request.form.get('name')
+    student.gender = request.form.get('gender') # Add this line
     student.roll_no = request.form.get('roll_no')
     db.session.commit()
     flash("Student profile updated!", "info")
@@ -209,3 +260,24 @@ def update_record(record_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+with app.app_context():
+    db.create_all()
+
+    # Seed Default Categories only if the table is empty
+    if not BehavioralCategory.query.first():
+        default_categories = [
+            ("Gross Motor", "Physical"), ("Fine Motor", "Physical"),
+            ("Locomotion", "Physical"), ("Occupation", "Physical"),
+            ("Eating/Drinking", "Self-Help"), ("Dressing", "Self-Help"),
+            ("Grooming", "Self-Help"), ("Toileting", "Self-Help"),
+            ("Self-Help General", "Self-Help"), ("Communication", "Social"),
+            ("Social Interaction", "Social"), ("Self-Direction", "Social"),
+            ("Socialization", "Social"), ("Reading", "Academic"),
+            ("Writing", "Academic"), ("Numbers", "Academic"),
+            ("Money", "Academic"), ("Time", "Academic")
+        ]
+        for name, gp in default_categories:
+            db.session.add(BehavioralCategory(name=name, group=gp))
+        db.session.commit()
+        print("Database Seeded with 18 Categories!")
