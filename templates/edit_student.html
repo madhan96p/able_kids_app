@@ -13,8 +13,23 @@
                     <label class="form-label">Roll Number</label>
                     <input type="text" name="roll_no" class="form-control" value="{{ student.roll_no }}" required>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Gender</label>
+                    <select name="gender" class="form-select">
+                        <option value="Male" {% if student.gender=='Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if student.gender=='Female' %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Batch</label>
+                    <select name="batch_id" class="form-select">
+                        {% for b in batches_list %}
+                        <option value="{{ b.id }}" {% if student.batch_id==b.id %}selected{% endif %}>{{ b.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
                 <button type="submit" class="btn btn-primary w-100">Update Profile</button>
-                <a href="/students" class="btn btn-link w-100 mt-2">Back to List</a>
             </form>
         </div>
     </div>

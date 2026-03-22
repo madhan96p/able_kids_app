@@ -18,16 +18,56 @@
                     <form action="/add_activity" method="POST">
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold text-secondary">
-                                <i class="bi bi-person-fill me-1"></i> Select Student
-                            </label>
-                            <select name="student_id" class="form-select form-select-lg border-primary-subtle" required>
-                                <option value="">-- Choose Student --</option>
-                                {% for s in students %}
-                                <option value="{{ s.id }}">{{ s.name }} ({{ s.roll_no }})</option>
-                                {% endfor %}
-                            </select>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label class="form-label fw-bold text-secondary">
+                                        <i class="bi bi-filter-circle me-1"></i> Filter by Batch
+                                    </label>
+                                    <select id="batchFilter" class="form-select border-primary-subtle"
+                                        onchange="filterStudents()">
+                                        <option value="all">All Batches</option>
+                                        {% for b in batches_list %}
+                                        <option value="batch-{{ b.id }}">{{ b.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-7">
+                                    <label class="form-label fw-bold text-secondary">
+                                        <i class="bi bi-person-fill me-1"></i> Select Student
+                                    </label>
+                                    <select name="student_id" class="form-select form-select-lg border-primary-subtle"
+                                        required>
+                                        <option value="">-- Choose Student --</option>
+                                        {% for s in students %}
+                                        <option value="{{ s.id }}" {% if s.id==prefilled_student_id %}selected{% endif
+                                            %}>
+                                            {{ s.name }} ({{ s.roll_no }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+
+                        <script>
+                            function filterStudents() {
+                                const selectedBatch = document.getElementById('batchFilter').value;
+                                const students = document.getElementsByClassName('student-option');
+                                const selectBox = document.getElementById('studentSelect');
+
+                                // Reset selection when filtering
+                                selectBox.value = "";
+
+                                for (let student of students) {
+                                    if (selectedBatch === 'all' || student.classList.contains(selectedBatch)) {
+                                        student.style.display = 'block';
+                                    } else {
+                                        student.style.display = 'none';
+                                    }
+                                }
+                            }
+                        </script>
 
                         <div class="mb-4">
                             <label class="form-label fw-bold text-secondary">

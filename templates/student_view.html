@@ -14,11 +14,11 @@
             </h2>
             <p class="text-muted">
                 <strong>Roll No:</strong> {{ student.roll_no }} |
-                <strong>Total Activities:</strong> {{ records|length }}
+                <strong>Total Activities:</strong> {{ activities|length }}
             </p>
         </div>
         <div class="col-md-5 text-md-end">
-            <a href="/" class="btn btn-primary shadow-sm">
+            <a href="{{ url_for('index', student_id=student.id) }}" class="btn btn-primary shadow-sm">
                 <i class="bi bi-plus-lg"></i> Add New Entry
             </a>
             <a href="/edit_student/{{ student.id }}" class="btn btn-outline-secondary">
@@ -86,12 +86,15 @@
                                     <span class="fw-bold me-2">{{ record.stage }}</span>
                                     <div class="progress flex-grow-1" style="height: 6px; width: 80px;">
                                         <div class="progress-bar bg-info"
-                                            style="width: {{ (record.stage / 20) * 100 }}%"></div>
+                                            style="width: {{ (record.stage / total_stages) * 100 if total_stages else 0 }}%">
+                                        </div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-muted" style="font-size: 0.95rem;">
-                                {{ record.notes or '--' }}
+                            <td class="text-muted" style="font-size: 0.95rem; max-width: 250px;">
+                                <div class="text-truncate" title="{{ record.notes }}">
+                                    {{ record.notes or '--' }}
+                                </div>
                             </td>
                             <td class="text-center">
                                 <div class="btn-group">

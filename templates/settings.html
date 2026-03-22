@@ -12,11 +12,45 @@
                     <form action="/settings" method="POST">
                         <label class="form-label fw-bold">Maximum Stages</label>
                         <div class="input-group mb-3">
-                            <input type="number" name="total_stages" class="form-control" value="{{ stages }}">
+                            <input type="number" name="total_stages" class="form-control" value="{{ total_stages }}">
                             <button class="btn btn-primary" type="submit">Update</button>
                         </div>
-                        <small class="text-muted">Currently set to 1-{{ stages }}</small>
+                        <small class="text-muted">Currently set to 1-{{ total_stages }}</small>
                     </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-layers-fill me-2"></i>Manage Batches</span>
+                    <span class="badge bg-white text-success">{{ batches_list|length }}</span>
+                </div>
+                <div class="card-body">
+                    <form action="/settings/add_batch" method="POST" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" name="batch_name" class="form-control" placeholder="e.g. Nursery"
+                                required>
+                            <button class="btn btn-success" type="submit"><i class="bi bi-plus"></i></button>
+                        </div>
+                    </form>
+
+                    <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                        {% for b in batches_list %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-dot text-success fs-3"></i>
+                                <span class="fw-medium">{{ b.name }}</span>
+                            </div>
+                            <a href="/settings/delete_batch/{{ b.id }}" class="btn btn-link text-danger p-0"
+                                onclick="return confirm('Delete this batch? Ensure no students are assigned to it.')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                        {% endfor %}
+                        {% if not batches_list %}
+                        <div class="text-center py-3 text-muted">No batches defined.</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
